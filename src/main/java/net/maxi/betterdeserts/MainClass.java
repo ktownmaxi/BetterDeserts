@@ -1,6 +1,8 @@
 package net.maxi.betterdeserts;
 
 import com.mojang.logging.LogUtils;
+import net.maxi.betterdeserts.enchantments.BetterDesertEnchantments;
+import net.maxi.betterdeserts.villager.DesertVillager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -14,8 +16,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(ExampleMod.MOD_ID)
-public class ExampleMod
+@Mod(MainClass.MOD_ID)
+public class MainClass
 {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "betterdeserts";
@@ -23,11 +25,14 @@ public class ExampleMod
     private static final Logger LOGGER = LogUtils.getLogger();
     // Create a Deferred Register to hold Blocks which will all be registered under the "examplemod" namespace
 
-    public ExampleMod()
+    public MainClass()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Register the commonSetup method for modloading
+        DesertVillager.register(modEventBus);
+        BetterDesertEnchantments.register(modEventBus);
+
+
         modEventBus.addListener(this::commonSetup);
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
@@ -39,8 +44,10 @@ public class ExampleMod
 
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
-    {
+    private void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            DesertVillager.registerPOIs();
+        });
     }
 
     // Add the example block item to the building blocks ta
